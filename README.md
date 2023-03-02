@@ -1,54 +1,17 @@
-# pilnetreports
+# CiviCRM: Custom reports for PILnet
 
-![Screenshot](/images/screenshot.png)
-
-(*FIXME: In one or two paragraphs, describe what the extension does and why one would download it. *)
+CiviCRM extension providing various custom reports for PILnet
 
 The extension is licensed under [GPL-3.0](LICENSE.txt).
 
-## Requirements
+## Usage
 
-* PHP v7.4+
-* CiviCRM (*FIXME: Version number*)
+Upon installation, each custom report is available as a template under CiviCRM's "New Report" navigation.
 
-## Installation (Web UI)
+## Support
+![screenshot](/images/joinery-logo.png)
 
-Learn more about installing CiviCRM extensions in the [CiviCRM Sysadmin Guide](https://docs.civicrm.org/sysadmin/en/latest/customize/extensions/).
-
-## Installation (CLI, Zip)
-
-Sysadmins and developers may download the `.zip` file for this extension and
-install it with the command-line tool [cv](https://github.com/civicrm/cv).
-
-```bash
-cd <extension-dir>
-cv dl pilnetreports@https://github.com/FIXME/pilnetreports/archive/master.zip
-```
-or
-```bash
-cd <extension-dir>
-cv dl pilnetreports@https://lab.civicrm.org/extensions/pilnetreports/-/archive/main/pilnetreports-main.zip
-```
-
-## Installation (CLI, Git)
-
-Sysadmins and developers may clone the [Git](https://en.wikipedia.org/wiki/Git) repo for this extension and
-install it with the command-line tool [cv](https://github.com/civicrm/cv).
-
-```bash
-git clone https://github.com/FIXME/pilnetreports.git
-cv en pilnetreports
-```
-or
-```bash
-git clone https://lab.civicrm.org/extensions/pilnetreports.git
-cv en pilnetreports
-```
-
-## Getting Started
-
-(* FIXME: Where would a new user navigate to get started? What changes would they see? *)
-
-## Known Issues
-
-(* FIXME *)
+Joinery provides strategic design and implementation for CiviCRM, including custom
+extension development, training, data migrations, and more. This extension has been
+custom-developed for our client, and we do not expect to make improvements at the
+request of the community.
