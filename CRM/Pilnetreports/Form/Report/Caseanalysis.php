@@ -182,7 +182,8 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
           ),
         ),
         'filters' => array(
-          'id' => array(
+          'country_id' => array(
+            'name' => 'id',
             'title' => E::ts('Jurisdiction (per output row)'),
             'operatorType' => CRM_Report_Form::OP_MULTISELECT,
             'options' => CRM_Core_BAO_Address::buildOptions('country_id'),
@@ -205,6 +206,15 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
             'dbAlias' => 'ov_ch_civireport.label',
             'title' => E::ts('Clearinghouse'),
             'default' => TRUE,
+          ),
+        ),
+        'filters' => array(
+          'clearinghouse_value' => array(
+            'name' => 'value',
+            'title' => E::ts('Clearinghouse (per output row)'),
+            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+            'options' => CRM_Core_BAO_OptionValue::getOptionValuesAssocArrayFromName('clearinghouse_20210729165514'),
+            'type' => CRM_Utils_Type::T_STRING,
           ),
         ),
         'order_bys' => array(
