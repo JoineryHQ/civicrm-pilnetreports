@@ -17,6 +17,11 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
       'civicrm_case' => array(
         'alias' => 'caseanalysis_case',
         'fields' => array(
+          'case_id_key' => array(
+            'name' => 'id',
+            'no_display' => TRUE,
+            'required' => TRUE,
+          ),
           'case_id' => array(
             'name' => 'id',
             'title' => E::ts('Case ID'),
@@ -65,6 +70,11 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
             'title' => E::ts('Case Contact Name'),
             'default' => TRUE,
           ),
+          'cc_id_key' => array(
+            'name' => 'id',
+            'no_display' => TRUE,
+            'required' => TRUE,
+          ),
           'cc_id' => array(
             'name' => 'id',
             'title' => E::ts('Case Contact ID'),
@@ -108,6 +118,11 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
             'title' => E::ts('Firm employee name'),
             'default' => TRUE,
           ),
+          'emp_cid_key' => array(
+            'name' => 'emp_cid',
+            'no_display' => TRUE,
+            'required' => TRUE,
+          ),
           'emp_cid' => array(
             'title' => E::ts('Firm employee ID'),
             'default' => TRUE,
@@ -121,9 +136,19 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
             'title' => E::ts('Firm name'),
             'default' => TRUE,
           ),
+          'firm_contact_id_key' => array(
+            'name' => 'firm_contact_id',
+            'no_display' => TRUE,
+            'required' => TRUE,
+          ),
           'firm_contact_id' => array(
             'title' => E::ts('Firm ID'),
             'default' => TRUE,
+          ),
+          'caseactivity_id_key' => array(
+            'name' => 'id',
+            'no_display' => TRUE,
+            'required' => TRUE,
           ),
           'caseactivity_id' => array(
             'name' => 'id',
@@ -246,7 +271,7 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
       if (array_key_exists('civicrm_case_case_subject', $row)) {
         if ($value = $row['civicrm_case_case_subject']) {
           $url = CRM_Utils_System::url("civicrm/contact/view/case",
-            "reset=1&id={$row['civicrm_case_case_id']}&cid={$row['civicrm_contact_cc_id']}&action=view",
+            "reset=1&id={$row['civicrm_case_case_id_key']}&cid={$row['civicrm_contact_cc_id_key']}&action=view",
             $this->_absoluteUrl
           );
           $rows[$rowNum]['civicrm_case_case_subject_link'] = $url;
@@ -257,7 +282,7 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
       if (array_key_exists('civicrm_contact_display_name', $row)) {
         if ($value = $row['civicrm_contact_display_name']) {
           $url = CRM_Utils_System::url("civicrm/contact/view",
-            "reset=1&cid={$row['civicrm_contact_cc_id']}",
+            "reset=1&cid={$row['civicrm_contact_cc_id_key']}",
             $this->_absoluteUrl
           );
           $rows[$rowNum]['civicrm_contact_display_name_link'] = $url;
@@ -268,7 +293,7 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
       if (array_key_exists('TEMP_employee_emp_display_name', $row)) {
         if ($value = $row['TEMP_employee_emp_display_name']) {
           $url = CRM_Utils_System::url("civicrm/contact/view",
-            "reset=1&cid={$row['TEMP_employee_emp_cid']}",
+            "reset=1&cid={$row['TEMP_employee_emp_cid_key']}",
             $this->_absoluteUrl
           );
           $rows[$rowNum]['TEMP_employee_emp_display_name_link'] = $url;
@@ -279,7 +304,7 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
       if (array_key_exists('TEMP_caseactivity_firm_name', $row)) {
         if ($value = $row['TEMP_caseactivity_firm_name']) {
           $url = CRM_Utils_System::url("civicrm/contact/view",
-            "reset=1&cid={$row['TEMP_caseactivity_firm_contact_id']}",
+            "reset=1&cid={$row['TEMP_caseactivity_firm_contact_id_key']}",
             $this->_absoluteUrl
           );
           $rows[$rowNum]['TEMP_caseactivity_firm_name_link'] = $url;
@@ -290,7 +315,7 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
       if (array_key_exists('TEMP_caseactivity_caseactivity_subject', $row)) {
         if ($value = $row['TEMP_caseactivity_caseactivity_subject']) {
           $url = CRM_Utils_System::url("civicrm/activity",
-            "action=view&reset=1&id={$row['TEMP_caseactivity_caseactivity_id']}",
+            "action=view&reset=1&id={$row['TEMP_caseactivity_caseactivity_id_key']}",
             $this->_absoluteUrl
           );
           $rows[$rowNum]['TEMP_caseactivity_caseactivity_subject_link'] = $url;
