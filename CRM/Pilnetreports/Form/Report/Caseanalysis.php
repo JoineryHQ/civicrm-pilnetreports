@@ -60,6 +60,12 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
             'type' => CRM_Utils_Type::T_BOOLEAN,
             'default' => 0,
           ),
+          'status_id' => array(
+            'title' => E::ts('Case status'),
+            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+            'options' => CRM_Case_BAO_Case::buildOptions('status_id'),
+            'type' => CRM_Utils_Type::T_INT,
+          ),
         ),
         'grouping' => 'case-fields',
       ),
