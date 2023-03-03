@@ -181,6 +181,14 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
             'default' => TRUE,
           ),
         ),
+        'filters' => array(
+          'id' => array(
+            'title' => E::ts('Jurisdiction (per output row)'),
+            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+            'options' => CRM_Core_BAO_Address::buildOptions('country_id'),
+            'type' => CRM_Utils_Type::T_INT,
+          ),
+        ),
         'order_bys' => array(
           'name' => array(
             'title' => 'Country',
