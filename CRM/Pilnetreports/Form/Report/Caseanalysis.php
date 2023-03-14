@@ -191,10 +191,21 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
           ),
         ),
         'order_bys' => array(
-          'name' => array(
-            'title' => 'Country',
-            'default' => TRUE,
-            'default_weight' => 4,
+          'jurisdiction' => array(
+            'name' => 'name',
+            'title' => 'Jurisdiction',
+            // Would be nice to have this as a default sort, but there's a UX problem:
+            // If the user de-selects the corresponding display column, they expect
+            // that the number of rows will decrease (since the report displays
+            // extra rows for distinct values on this table.column). However, if
+            // we're sorting on this column, we need to include it in the query,
+            // and therefore we'll still get those extra rows. Therefore, I'm deicding
+            // to require the user to set this order_by manually if they want it,
+            // so they have a better chance of understanding the implications for
+            // extra rows.
+            //
+            // 'default' => TRUE,
+            // 'default_weight' => 4,
           ),
         ),
         'grouping' => 'case-fields',
@@ -218,10 +229,21 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
           ),
         ),
         'order_bys' => array(
-          'label' => array(
+          'clearinghouse' => array(
+            'name' => 'label',
             'title' => 'Clearinghouse',
-            'default' => TRUE,
-            'default_weight' => 5,
+            // Would be nice to have this as a default sort, but there's a UX problem:
+            // If the user de-selects the corresponding display column, they expect
+            // that the number of rows will decrease (since the report displays
+            // extra rows for distinct values on this table.column). However, if
+            // we're sorting on this column, we need to include it in the query,
+            // and therefore we'll still get those extra rows. Therefore, I'm deicding
+            // to require the user to set this order_by manually if they want it,
+            // so they have a better chance of understanding the implications for
+            // extra rows.
+            //
+            // 'default' => TRUE,
+            // 'default_weight' => 5,
           ),
         ),
         'grouping' => 'case-fields',
@@ -264,27 +286,65 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
           ON cc.case_id = {$this->_aliases['civicrm_case']}.id
         INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact']}
           ON {$this->_aliases['civicrm_contact']}.id = cc.contact_id
+    ";
+    if (
+      $this->isTableSelected('TEMP_caseactivity')
+      || $this->isTableSelected('TEMP_employee')
+    ) {
+       $this->_from .= "
         LEFT JOIN TEMP_caseactivity {$this->_aliases['TEMP_caseactivity']}
           ON {$this->_aliases['TEMP_caseactivity']}.case_id = {$this->_aliases['civicrm_case']}.id
           AND {$this->_aliases['TEMP_caseactivity']}.firm_contact_id != {$this->_aliases['civicrm_contact']}.id
+      ";
+    }
+    if (
+      $this->isTableSelected('TEMP_employee')
+      || $this->isTableSelected('civicrm_email')
+    ) {
+      $this->_from .= "
         LEFT JOIN TEMP_employee {$this->_aliases['TEMP_employee']}
           ON {$this->_aliases['TEMP_employee']}.activity_id = {$this->_aliases['TEMP_caseactivity']}.id
           AND {$this->_aliases['TEMP_employee']}.contact_id not in ({$this->_aliases['civicrm_contact']}.id, {$this->_aliases['TEMP_caseactivity']}.firm_contact_id)
           AND {$this->_aliases['TEMP_employee']}.contact_id_b = {$this->_aliases['TEMP_caseactivity']}.firm_contact_id
+      ";
+    }
+    if ($this->isTableSelected('civicrm_email')) {
+      $this->_from .= "
         LEFT JOIN civicrm_email {$this->_aliases['civicrm_email']}
           ON {$this->_aliases['civicrm_email']}.contact_id = {$this->_aliases['TEMP_employee']}.emp_cid AND {$this->_aliases['civicrm_email']}.is_primary
+      ";
+    }
+    if (
+      $this->isTableSelected('civicrm_value_matter_case_d_18')
+      || $this->isTableSelected('civicrm_option_value_ch')
+      || $this->isTableSelected('civicrm_option_value_cat')
+      || $this->isTableSelected('civicrm_country')
+    ) {
+      $this->_from .= "
         LEFT JOIN civicrm_value_matter_case_d_18 {$this->_aliases['civicrm_value_matter_case_d_18']}
           ON {$this->_aliases['civicrm_value_matter_case_d_18']}.entity_id = {$this->_aliases['civicrm_case']}.id
+      ";
+    }
+    if ($this->isTableSelected('civicrm_country')) {
+      $this->_from .= "
         LEFT JOIN civicrm_country {$this->_aliases['civicrm_country']}
           ON {$this->_aliases['civicrm_value_matter_case_d_18']}.jurisdiction2_42 LIKE CONCAT('%', {$this->_aliases['civicrm_country']}.iso_code, '%')
+      ";
+    }
+    if ($this->isTableSelected('civicrm_option_value_ch')) {
+      $this->_from .= "
         LEFT JOIN civicrm_option_value {$this->_aliases['civicrm_option_value_ch']}
           ON {$this->_aliases['civicrm_option_value_ch']}.option_group_id = 121
           AND {$this->_aliases['civicrm_value_matter_case_d_18']}.clearinghouse_39 LIKE CONCAT('%', {$this->_aliases['civicrm_option_value_ch']}.value, '%')
+      ";
+    }
+    if ($this->isTableSelected('civicrm_option_value_cat')) {
+      $this->_from .= "
         LEFT JOIN civicrm_option_value {$this->_aliases['civicrm_option_value_cat']}
           ON {$this->_aliases['civicrm_option_value_cat']}.option_group_id = 119
           AND {$this->_aliases['civicrm_value_matter_case_d_18']}.category_37 = {$this->_aliases['civicrm_option_value_cat']}.value
      ";
-
+    }
   }
 
   function alterDisplay(&$rows) {
