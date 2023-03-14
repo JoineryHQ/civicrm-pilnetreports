@@ -4,15 +4,16 @@ use CRM_Pilnetreports_ExtensionUtil as E;
 class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
   /**
    *
-   * @var Boolean If TRUE, use non-temporary tables in self::_debug_temp_table(), to facilitate query debugging in SQL.
+   * @var bool
+   * If TRUE, use non-temporary tables in self::_debug_temp_table(), to facilitate query debugging in SQL.
    */
   protected $_debug = FALSE;
-  
+
   protected $_autoIncludeIndexedFieldsAsOrderBys = TRUE;
   protected $_exposeContactID = FALSE;
   protected $_customGroupGroupBy = FALSE;
 
-  function __construct() {
+  public function __construct() {
     $this->_columns = array(
       'civicrm_case' => array(
         'alias' => 'caseanalysis_case',
@@ -276,7 +277,7 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
     parent::__construct();
   }
 
-  function from() {
+  public function from() {
     $this->_from = NULL;
 
     $this->_from = "
@@ -291,7 +292,7 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
       $this->isTableSelected('TEMP_caseactivity')
       || $this->isTableSelected('TEMP_employee')
     ) {
-       $this->_from .= "
+      $this->_from .= "
         LEFT JOIN TEMP_caseactivity {$this->_aliases['TEMP_caseactivity']}
           ON {$this->_aliases['TEMP_caseactivity']}.case_id = {$this->_aliases['civicrm_case']}.id
           AND {$this->_aliases['TEMP_caseactivity']}.firm_contact_id != {$this->_aliases['civicrm_contact']}.id
@@ -347,7 +348,7 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
     }
   }
 
-  function alterDisplay(&$rows) {
+  public function alterDisplay(&$rows) {
     // custom code to alter rows
     $entryFound = FALSE;
     $caseStatuses = CRM_Case_PseudoConstant::caseStatus();
@@ -513,7 +514,6 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
 
     // Now that we've built the temp tables, return the original report query SQL.
     return parent::buildQuery($applyLimit);
-;
   }
 
   /**
@@ -528,5 +528,5 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
     ksort($formValues['order_bys']);
     parent::preProcessOrderBy($formValues);
   }
-}
 
+}
