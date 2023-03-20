@@ -295,7 +295,7 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
       $this->_from .= "
         LEFT JOIN TEMP_caseactivity {$this->_aliases['TEMP_caseactivity']}
           ON {$this->_aliases['TEMP_caseactivity']}.case_id = {$this->_aliases['civicrm_case']}.id
-          AND {$this->_aliases['TEMP_caseactivity']}.firm_contact_id != {$this->_aliases['civicrm_contact']}.id
+          AND ifnull({$this->_aliases['TEMP_caseactivity']}.firm_contact_id, 0) != {$this->_aliases['civicrm_contact']}.id
       ";
     }
     if (
@@ -473,7 +473,7 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
             INNER JOIN civicrm_activity_contact ac
               on ac.activity_id = a.id
               and ac.record_type_id = 3
-            INNER JOIN civicrm_contact c
+            LEFT JOIN civicrm_contact c
               on c.id = ac.contact_id
               and c.contact_type = 'organization'
       ";
