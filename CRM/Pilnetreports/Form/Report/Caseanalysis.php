@@ -137,7 +137,7 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
         ),
         'grouping' => 'employee-fields',
       ),
-      'TEMP_caseactivity' => array(
+      'TEMP_caseactivity_assigned' => array(
         'fields' => array(
           'firm_name' => array(
             'title' => E::ts('Firm name'),
@@ -171,6 +171,29 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
             'name' => 'activity_date_time',
             'title' => E::ts('"Assigned" activity date/time'),
             'default' => TRUE,
+          ),
+        ),
+        'grouping' => 'activity-fields',
+      ),
+      'TEMP_caseactivity_dates' => array(
+        'fields' => array(
+          'matter_assigned' => array(
+            'title' => E::ts('Last Matter Assigned'),
+          ),
+          'status_changed' => array(
+            'title' => E::ts('Last Assigned/Completed status change'),
+          ),
+        ),
+        'filters' => array(
+          'matter_assigned' => array(
+            'title' => E::ts('Last Matter Assigned'),
+            'operatorType' => CRM_Report_Form::OP_DATE,
+            'type' => CRM_Utils_Type::T_DATE,
+          ),
+          'status_changed' => array(
+            'title' => E::ts('Last Assigned/Completed status change'),
+            'operatorType' => CRM_Report_Form::OP_DATE,
+            'type' => CRM_Utils_Type::T_DATE,
           ),
         ),
         'grouping' => 'activity-fields',
@@ -289,13 +312,13 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
           ON {$this->_aliases['civicrm_contact']}.id = cc.contact_id
     ";
     if (
-      $this->isTableSelected('TEMP_caseactivity')
+      $this->isTableSelected('TEMP_caseactivity_assigned')
       || $this->isTableSelected('TEMP_employee')
     ) {
       $this->_from .= "
-        LEFT JOIN TEMP_caseactivity {$this->_aliases['TEMP_caseactivity']}
-          ON {$this->_aliases['TEMP_caseactivity']}.case_id = {$this->_aliases['civicrm_case']}.id
-          AND ifnull({$this->_aliases['TEMP_caseactivity']}.firm_contact_id, 0) != {$this->_aliases['civicrm_contact']}.id
+        LEFT JOIN TEMP_caseactivity_assigned {$this->_aliases['TEMP_caseactivity_assigned']}
+          ON {$this->_aliases['TEMP_caseactivity_assigned']}.case_id = {$this->_aliases['civicrm_case']}.id
+          AND ifnull({$this->_aliases['TEMP_caseactivity_assigned']}.firm_contact_id, 0) != {$this->_aliases['civicrm_contact']}.id
       ";
     }
     if (
@@ -304,9 +327,9 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
     ) {
       $this->_from .= "
         LEFT JOIN TEMP_employee {$this->_aliases['TEMP_employee']}
-          ON {$this->_aliases['TEMP_employee']}.activity_id = {$this->_aliases['TEMP_caseactivity']}.id
-          AND {$this->_aliases['TEMP_employee']}.contact_id not in ({$this->_aliases['civicrm_contact']}.id, {$this->_aliases['TEMP_caseactivity']}.firm_contact_id)
-          AND {$this->_aliases['TEMP_employee']}.contact_id_b = {$this->_aliases['TEMP_caseactivity']}.firm_contact_id
+          ON {$this->_aliases['TEMP_employee']}.activity_id = {$this->_aliases['TEMP_caseactivity_assigned']}.id
+          AND {$this->_aliases['TEMP_employee']}.contact_id not in ({$this->_aliases['civicrm_contact']}.id, {$this->_aliases['TEMP_caseactivity_assigned']}.firm_contact_id)
+          AND {$this->_aliases['TEMP_employee']}.contact_id_b = {$this->_aliases['TEMP_caseactivity_assigned']}.firm_contact_id
       ";
     }
     if ($this->isTableSelected('civicrm_email')) {
@@ -344,6 +367,12 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
         LEFT JOIN civicrm_option_value {$this->_aliases['civicrm_option_value_cat']}
           ON {$this->_aliases['civicrm_option_value_cat']}.option_group_id = 119
           AND {$this->_aliases['civicrm_value_matter_case_d_18']}.category_37 = {$this->_aliases['civicrm_option_value_cat']}.value
+     ";
+    }
+    if ($this->isTableSelected('TEMP_caseactivity_dates')) {
+      $this->_from .= "
+        LEFT JOIN TEMP_caseactivity_dates {$this->_aliases['TEMP_caseactivity_dates']}
+          ON {$this->_aliases['TEMP_caseactivity_dates']}.case_id = {$this->_aliases['civicrm_case']}.id
      ";
     }
   }
@@ -386,25 +415,25 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
         }
         $entryFound = TRUE;
       }
-      if (array_key_exists('TEMP_caseactivity_firm_name', $row)) {
-        if ($value = $row['TEMP_caseactivity_firm_name']) {
+      if (array_key_exists('TEMP_caseactivity_assigned_firm_name', $row)) {
+        if ($value = $row['TEMP_caseactivity_assigned_firm_name']) {
           $url = CRM_Utils_System::url("civicrm/contact/view",
-            "reset=1&cid={$row['TEMP_caseactivity_firm_contact_id_key']}",
+            "reset=1&cid={$row['TEMP_caseactivity_assigned_firm_contact_id_key']}",
             $this->_absoluteUrl
           );
-          $rows[$rowNum]['TEMP_caseactivity_firm_name_link'] = $url;
-          $rows[$rowNum]['TEMP_caseactivity_firm_name_hover'] = E::ts("View Contact Summary for this Contact.");
+          $rows[$rowNum]['TEMP_caseactivity_assigned_firm_name_link'] = $url;
+          $rows[$rowNum]['TEMP_caseactivity_assigned_firm_name_hover'] = E::ts("View Contact Summary for this Contact.");
         }
         $entryFound = TRUE;
       }
-      if (array_key_exists('TEMP_caseactivity_caseactivity_subject', $row)) {
-        if ($value = $row['TEMP_caseactivity_caseactivity_subject']) {
+      if (array_key_exists('TEMP_caseactivity_assigned_caseactivity_subject', $row)) {
+        if ($value = $row['TEMP_caseactivity_assigned_caseactivity_subject']) {
           $url = CRM_Utils_System::url("civicrm/activity",
-            "action=view&reset=1&id={$row['TEMP_caseactivity_caseactivity_id_key']}",
+            "action=view&reset=1&id={$row['TEMP_caseactivity_assigned_caseactivity_id_key']}",
             $this->_absoluteUrl
           );
-          $rows[$rowNum]['TEMP_caseactivity_caseactivity_subject_link'] = $url;
-          $rows[$rowNum]['TEMP_caseactivity_caseactivity_subject_hover'] = E::ts("View this Activity.");
+          $rows[$rowNum]['TEMP_caseactivity_assigned_caseactivity_subject_link'] = $url;
+          $rows[$rowNum]['TEMP_caseactivity_assigned_caseactivity_subject_hover'] = E::ts("View this Activity.");
         }
         $entryFound = TRUE;
       }
@@ -452,10 +481,10 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
    * Override parent::buildQuery in order to first build some temporary tables.
    */
   public function buildQuery($applyLimit = TRUE) {
-    if ($this->isTableSelected('TEMP_caseactivity')) {
-      $temporary = $this->_debug_temp_table('TEMP_caseactivity');
+    if ($this->isTableSelected('TEMP_caseactivity_assigned')) {
+      $temporary = $this->_debug_temp_table('TEMP_caseactivity_assigned');
       $query = "
-        CREATE $temporary TABLE TEMP_caseactivity
+        CREATE $temporary TABLE TEMP_caseactivity_assigned
           (
             index (firm_contact_id),
             index (case_id)
@@ -481,6 +510,53 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
       $this->addToDeveloperTab($query);
     }
 
+    if ($this->isTableSelected('TEMP_caseactivity_dates')) {
+      $temporary = $this->_debug_temp_table('TEMP_caseactivity_dates');
+
+      $query = "
+        CREATE $temporary TABLE `TEMP_caseactivity_dates` (
+          `case_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Unique  Other Activity ID',
+          `status_changed` datetime NULL DEFAULT NULL,
+          `matter_assigned` datetime NULL DEFAULT NULL,
+          KEY `case_id` (`case_id`),
+          KEY `status_changed` (`status_changed`),
+          KEY `matter_assigned` (`matter_assigned`)
+        ) ENGINE=InnoDB
+        ";
+      CRM_Core_DAO::executeQuery($query);
+      $this->addToDeveloperTab($query);
+      $query = "
+        INSERT INTO TEMP_caseactivity_dates
+        SELECT 
+          case_id, 
+          NULLIF (
+            GREATEST(
+              MAX(if(action = 'status:completed', atime, '0')),
+              MAX(if(action = 'status:assigned', atime, '0'))
+            ), '0'
+          ) as status_changed,
+          NULLIF (
+            MAX(
+              if(action = 'matter_assigned', atime, '0')
+            ), '0'
+          ) as matter_assigned
+        FROM (
+          SELECT 
+            ca.case_id, 
+            a.activity_type_id, activity_date_time as atime,
+            if(activity_type_id = 83, 'matter_assigned', concat('status:', REGEXP_REPLACE(a.subject, '^Case status changed from [a-zA-Z ]+ to ', ''))) as action
+          FROM 
+            civicrm_case_activity ca
+            INNER JOIN civicrm_activity a ON a.id = ca.activity_id
+          WHERE 
+            a.activity_type_id in (16, 83)
+        ) t
+        GROUP BY case_id
+      ";
+      CRM_Core_DAO::executeQuery($query);
+      $this->addToDeveloperTab($query);
+    }
+
     if ($this->isTableSelected('TEMP_employee')) {
       $temporary = $this->_debug_temp_table('TEMP_employee');
       $query = "
@@ -498,7 +574,7 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
             c.id as emp_cid
           from
             civicrm_activity_contact ac
-            INNER JOIN TEMP_caseactivity a on a.id = ac.activity_id
+            INNER JOIN TEMP_caseactivity_assigned a on a.id = ac.activity_id
             LEFT JOIN civicrm_contact c on c.id = ac.contact_id
             LEFT JOIN civicrm_relationship r on
               r.relationship_type_id = 4
