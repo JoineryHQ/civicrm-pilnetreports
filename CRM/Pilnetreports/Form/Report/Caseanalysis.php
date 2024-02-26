@@ -527,8 +527,8 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
       $this->addToDeveloperTab($query);
       $query = "
         INSERT INTO TEMP_caseactivity_dates
-        SELECT 
-          case_id, 
+        SELECT
+          case_id,
           NULLIF (
             GREATEST(
               MAX(if(action = 'status:completed', atime, '0')),
@@ -541,14 +541,14 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
             ), '0'
           ) as matter_assigned
         FROM (
-          SELECT 
-            ca.case_id, 
+          SELECT
+            ca.case_id,
             a.activity_type_id, activity_date_time as atime,
             if(activity_type_id = 83, 'matter_assigned', concat('status:', REGEXP_REPLACE(a.subject, '^Case status changed from [a-zA-Z ]+ to ', ''))) as action
-          FROM 
+          FROM
             civicrm_case_activity ca
             INNER JOIN civicrm_activity a ON a.id = ca.activity_id
-          WHERE 
+          WHERE
             a.activity_type_id in (16, 83)
         ) t
         GROUP BY case_id
