@@ -109,6 +109,23 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
         ),
         'grouping' => 'contact-fields',
       ),
+      'civicrm_contact_coordinator' => array(
+        'dao' => 'CRM_Contact_DAO_Contact',
+        'fields' => array(
+          'coordinator_display_name' => array(
+            'name' => 'display_name',
+            'title' => E::ts('Case Coordinator Name'),
+            'default' => TRUE,
+          ),
+          'coordinator_id' => array(
+            'name' => 'id',
+            'no_display' => TRUE,
+            'no_display' => false,
+            'required' => TRUE,
+          ),
+        ),
+        'grouping' => 'contact-fields',
+      ),
       'civicrm_email' => array(
         'dao' => 'CRM_Core_DAO_Email',
         'fields' => array(
@@ -375,6 +392,16 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
           ON {$this->_aliases['TEMP_caseactivity_dates']}.case_id = {$this->_aliases['civicrm_case']}.id
      ";
     }
+    if ($this->isTableSelected('civicrm_contact_coordinator')) {
+      $this->_from .= "
+        LEFT JOIN civicrm_relationship r_coordinator
+          ON r_coordinator.case_id = {$this->_aliases['civicrm_case']}.id
+          AND r_coordinator.relationship_type_id = 8
+          AND r_coordinator.is_active
+        LEFT JOIN civicrm_contact {$this->_aliases['civicrm_contact_coordinator']}
+          ON {$this->_aliases['civicrm_contact_coordinator']}.id = if (r_coordinator.contact_id_a = {$this->_aliases['civicrm_contact']}.id, r_coordinator.contact_id_b, r_coordinator.contact_id_a)
+     ";
+    }
   }
 
   public function alterDisplay(&$rows) {
@@ -423,6 +450,17 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
           );
           $rows[$rowNum]['TEMP_caseactivity_assigned_firm_name_link'] = $url;
           $rows[$rowNum]['TEMP_caseactivity_assigned_firm_name_hover'] = E::ts("View Contact Summary for this Contact.");
+        }
+        $entryFound = TRUE;
+      }
+      if (array_key_exists('civicrm_contact_coordinator_coordinator_display_name', $row)) {
+        if ($value = $row['civicrm_contact_coordinator_coordinator_display_name']) {
+          $url = CRM_Utils_System::url("civicrm/contact/view",
+            "reset=1&cid={$row['civicrm_contact_coordinator_coordinator_id']}",
+            $this->_absoluteUrl
+          );
+          $rows[$rowNum]['civicrm_contact_coordinator_coordinator_display_name_link'] = $url;
+          $rows[$rowNum]['civicrm_contact_coordinator_coordinator_display_name_hover'] = E::ts("View Contact Summary for this Contact.");
         }
         $entryFound = TRUE;
       }
