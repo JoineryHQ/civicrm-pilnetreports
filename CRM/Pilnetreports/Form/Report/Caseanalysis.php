@@ -640,11 +640,11 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
     foreach ($this->_columns as $tableName => $table) {
       if (array_key_exists('fields', $table)) {
         foreach ($table['fields'] as $fieldName => $field) {
-        if (
-          // If the field is either required or in report params ...
-          !empty($field['required']) ||
-          !empty($this->_params['fields'][$fieldName])
-        ) {
+          if (
+            // If the field is either required or in report params ...
+            !empty($field['required']) ||
+            !empty($this->_params['fields'][$fieldName])
+          ) {
             // ... and the field is not hidden:
             if (empty($field['no_display'])) {
               // Then we'll add it to the 'GROUP BY'.
