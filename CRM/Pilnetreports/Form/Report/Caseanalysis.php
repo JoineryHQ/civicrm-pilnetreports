@@ -120,7 +120,6 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
           'coordinator_id' => array(
             'name' => 'id',
             'no_display' => TRUE,
-            'no_display' => false,
             'required' => TRUE,
           ),
         ),
@@ -628,6 +627,36 @@ class CRM_Pilnetreports_Form_Report_Caseanalysis extends CRM_Report_Form {
 
     // Now that we've built the temp tables, return the original report query SQL.
     return parent::buildQuery($applyLimit);
+  }
+
+  /**
+   * Override parent method. This report will always show only distinct rows;
+   * this is done by forcing 'GROUP BY' on all (and only on all) displayed columns.
+   *
+   * @return void
+   */
+  public function groupBy() {
+    $groupBys = [];
+    foreach ($this->_columns as $tableName => $table) {
+      if (array_key_exists('fields', $table)) {
+        foreach ($table['fields'] as $fieldName => $field) {
+        if (
+          // If the field is either required or in report params ...
+          !empty($field['required']) ||
+          !empty($this->_params['fields'][$fieldName])
+        ) {
+            // ... and the field is not hidden:
+            if (empty($field['no_display'])) {
+              // Then we'll add it to the 'GROUP BY'.
+              $groupBys[] = "{$tableName}_{$fieldName}";
+            }
+          }
+        }
+      }
+    }
+    if (!empty($groupBys)) {
+      $this->_groupBy = ' GROUP BY ' . implode($groupBys, ', ');
+    }
   }
 
   /**
