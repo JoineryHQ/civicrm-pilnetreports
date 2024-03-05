@@ -430,6 +430,7 @@ class CRM_Pilnetreports_civicrm_CRM_Report_Form_Case_Detail extends CRM_Report_F
             AND provider_relationship.relationship_type_id = 20
         LEFT JOIN civicrm_contact {$this->_aliases['civicrm_contact_provider']}
           ON {$this->_aliases['civicrm_contact_provider']}.id = (if(provider_relationship.contact_id_a = {$this->_aliases['civicrm_contact']}.id, provider_relationship.contact_id_b, provider_relationship.contact_id_a))
+            AND not {$this->_aliases['civicrm_contact_provider']}.is_deleted
       ";
     }
   }
