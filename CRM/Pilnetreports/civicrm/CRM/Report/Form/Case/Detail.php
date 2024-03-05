@@ -715,10 +715,18 @@ class CRM_Pilnetreports_civicrm_CRM_Report_Form_Case_Detail extends CRM_Report_F
    */
   private function _alterProBonoProviderDisplay($cidsCommaString) {
     static $cidLinks = [];
+    if (empty($cidsCommaString)) {
+      // If our string is empty, just return an empty string.
+      return '';
+    }
     $links = [];
     $cids = explode(',', $cidsCommaString);
     foreach ($cids as $cid) {
       if (!isset($cidLinks[$cid])) {
+        if (empty($cid) || (int)$cid != $cid) {
+          // If somehow cid is not an integer, just skip it.
+          continue;
+        }
         $displayName = civicrm_api3('contact', 'getValue', ['id' => $cid, 'return' => 'display_name']);
         $url = CRM_Utils_System::url('civicrm/contact/view', ['reset' => 1, 'cid' => $cid], TRUE);
         $cidLinks[$cid] = '<a title="View Contact Summary for this Contact" href="'. $url . '">'. $displayName . '</a>';
