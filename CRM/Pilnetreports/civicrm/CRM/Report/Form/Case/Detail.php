@@ -154,6 +154,25 @@ class CRM_Pilnetreports_civicrm_CRM_Report_Form_Case_Detail extends CRM_Report_F
           ],
         ],
       ],
+      'civicrm_contact_coordinator' => [
+        'dao' => 'CRM_Contact_DAO_Contact',
+        'fields' => [
+          'coordinator_display_name' => [
+            'name' => 'display_name',
+            'title' => ts('Case Coordinator'),
+          ],
+          'id' => [
+            'no_display' => TRUE,
+            'required' => TRUE,
+          ],
+        ],
+        'filters' => [
+          'coordinator_sort_name' => [
+            'name' => 'display_name',
+            'title' => ts('Case Coordinator')
+          ],
+        ],
+      ],
       'civicrm_relationship' => [
         'dao' => 'CRM_Contact_DAO_Relationship',
         'fields' => [
@@ -433,6 +452,18 @@ class CRM_Pilnetreports_civicrm_CRM_Report_Form_Case_Detail extends CRM_Report_F
             AND not {$this->_aliases['civicrm_contact_provider']}.is_deleted
       ";
     }
+    if ($this->isTableSelected('civicrm_contact_coordinator')) {
+      $this->_from .= "
+        LEFT JOIN civicrm_relationship coordinator_relationship
+          ON coordinator_relationship.case_id = {$this->_aliases['civicrm_case']}.id
+            AND coordinator_relationship.is_active
+            AND (coordinator_relationship.end_date IS NULL OR coordinator_relationship.end_date > now())
+            AND coordinator_relationship.relationship_type_id = 8
+        LEFT JOIN civicrm_contact {$this->_aliases['civicrm_contact_coordinator']}
+          ON {$this->_aliases['civicrm_contact_coordinator']}.id = (if(coordinator_relationship.contact_id_a = {$this->_aliases['civicrm_contact']}.id, coordinator_relationship.contact_id_b, coordinator_relationship.contact_id_a))
+            AND not {$this->_aliases['civicrm_contact_coordinator']}.is_deleted
+      ";
+    }
   }
 
   public function where() {
@@ -669,6 +700,17 @@ class CRM_Pilnetreports_civicrm_CRM_Report_Form_Case_Detail extends CRM_Report_F
         $rows[$rowNum]['civicrm_contact_client_sort_name_hover'] = ts("View Contact Summary for this Contact");
         $entryFound = TRUE;
       }
+      if (array_key_exists('civicrm_contact_coordinator_coordinator_display_name', $row) &&
+        array_key_exists('civicrm_contact_coordinator_id', $row)
+      ) {
+        $url = CRM_Utils_System::url("civicrm/contact/view",
+          'reset=1&cid=' . $row['civicrm_contact_coordinator_id'],
+          $this->_absoluteUrl
+        );
+        $rows[$rowNum]['civicrm_contact_coordinator_coordinator_display_name_link'] = $url;
+        $rows[$rowNum]['civicrm_contact_coordinator_coordinator_display_name_hover'] = ts("View Contact Summary for this Contact");
+        $entryFound = TRUE;
+      }
       if (array_key_exists('civicrm_activity_last_last_activity_activity_type', $row)) {
         if ($value = $row['civicrm_activity_last_last_activity_activity_type']) {
           $rows[$rowNum]['civicrm_activity_last_last_activity_activity_type'] = $activityTypes[$value];
@@ -708,7 +750,7 @@ class CRM_Pilnetreports_civicrm_CRM_Report_Form_Case_Detail extends CRM_Report_F
   /**
    * Replace a comma-delimited list of contact IDs with a semicolon-delimited
    * list of links to those contacts.
-   * 
+   *
    * @staticvar array $cidLinks Collection of calculated links, cached because a report
    *   will likely contain multiple links to the same contact.
    * @param string $cidsCommaString comma-delimited list of cids.
